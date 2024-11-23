@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speedrun PBs</title>
+    <style>
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #0f172a;
+        color: #e2e8f0;
+        margin: 0;
+        padding: 2rem;
+        min-height: 100vh;
+      }
+
+      h1 {
+        text-align: center;
+        color: #38bdf8;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .game-card {
+        background-color: #1e293b;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .game-title {
+        color: #38bdf8;
+        font-size: 1.5rem;
+        margin: 0 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #38bdf8;
+      }
+
+      .category-grid {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .category-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background-color: #334155;
+        border-radius: 0.5rem;
+        transition: transform 0.2s;
+      }
+
+      .category-item:hover {
+        transform: translateX(0.25rem);
+      }
+
+      .category-name {
+        color: #94a3b8;
+        font-size: 0.875rem;
+      }
+
+      .category-time {
+        color: #f1f5f9;
+        font-weight: bold;
+        font-family: "JetBrains Mono", monospace;
+        padding: 0.25rem 0.75rem;
+        background-color: #0f172a;
+        border-radius: 0.25rem;
+      }
+
+      .error-message {
+        color: #ef4444;
+        text-align: center;
+        padding: 1rem;
+        background-color: #1e293b;
+        border-radius: 0.5rem;
+        margin: 1rem auto;
+        max-width: 600px;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 1rem;
+        }
+
+        .games-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>My Speedrun PBs</h1>
+    <div class="games-grid" id="games-container">
+      <!-- Data will be populated here by JavaScript -->
+    </div>
+
+    <script>
+      const gamesContainer = document.getElementById("games-container");
+
+      function createGameCard(game, categories) {
+        const gameCard = document.createElement("div");
+        gameCard.className = "game-card";
+
+        const gameTitle = document.createElement("h2");
+        gameTitle.className = "game-title";
+        gameTitle.textContent = game;
+
+        const categoryGrid = document.createElement("div");
+        categoryGrid.className = "category-grid";
+
+        Object.entries(categories).forEach(([category, time]) => {
+          const categoryItem = document.createElement("div");
+          categoryItem.className = "category-item";
+
+          const categoryName = document.createElement("span");
+          categoryName.className = "category-name";
+          categoryName.textContent = category;
+
+          const categoryTime = document.createElement("span");
+          categoryTime.className = "category-time";
+          categoryTime.textContent = time;
+
+          categoryItem.appendChild(categoryName);
+          categoryItem.appendChild(categoryTime);
+          categoryGrid.appendChild(categoryItem);
+        });
+
+        gameCard.appendChild(gameTitle);
+        gameCard.appendChild(categoryGrid);
+        return gameCard;
+      }
+
+      function showError(message) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error-message";
+        errorDiv.textContent = message;
+        gamesContainer.appendChild(errorDiv);
+      }
+
+      // Fetch and process the data
+      fetch("data.json")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to load PB data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          Object.entries(data).forEach(([game, categories]) => {
+            const gameCard = createGameCard(game, categories);
+            gamesContainer.appendChild(gameCard);
+          });
+        })
+        .catch((error) => {
+          console.error("Error loading PB data:", error);
+          showError(
+            "Failed to load PB data. Please check if data.json exists and is properly formatted."
+          );
+        });
+    </script>
+  </body>
+</html>
